@@ -1,0 +1,155 @@
+{% extends "./index.html" %} {% block title %}{{exam.title}} -
+QuickExam{%endblock title %} {% block content %}
+<h1 class="display-4 text-center my-5">
+  {{exam.title}} - ({{exam.question_set.all|length}})
+</h1>
+<p class="fs-4 text-center container">{{exam.description}}</p>
+
+<div class="container">
+  <div class="d-flex justify-content-between">
+    <span class="fs-5">{{exam.created_at}}</span>
+    <span class="fs-5" id="timer">10:00</span>
+  </div>
+
+  {% for message in messages %}
+  <div id="message-div">
+    <h4 class="text-center text-success">{{message}}</h4>
+  </div>
+  {% endfor %}
+
+  <div class="questions my-4">
+    {% for question in exam.question_set.all %}
+    <div class="card mb-3 question">
+      <div class="card-header fw-bold">Question {{forloop.counter}}</div>
+      <div class="card-body">
+        <p class="card-text">{{forloop.counter}}. {{question.text}}</p>
+        {% for option in question.choice_set.all %}
+        <div class="form-check">
+          <label class="form-check-label" for="{{option.id}}">
+            <input
+              class="form-check-input"
+              value="{{option.text}}"
+              type="radio"
+              name="{{option.question.id}}"
+              id="{{option.id}}"
+            />
+
+            {{option.text}}
+          </label>
+          {% if option.is_correct %}
+          <span class="visually-hidden correct-answer">{{option.text}}</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <form action="" method="POST" id="exam-form">
+    {% csrf_token %}
+    <!-- hidden input feild for score -->
+    <input type="hidden" name="score" value="0" id="user-score" />
+
+    <!-- submit button -->
+    <button type="submit" class="btn btn-primary" id="submit-button">
+      Submit
+    </button>
+  </form>
+</div>
+
+<script>
+  // Elements
+  var submitButton = document.getElementById("submit-button");
+  var timerSpan = document.getElementById("timer");
+  var examForm = document.getElementById("exam-form");
+  var questions = document.querySelectorAll(".question");
+  var userScoreInput = document.getElementById("user-score");
+
+  examDuration = questions.length * 60; //convert in sec
+
+  //update Timer
+  function updateTimer() {
+    var min = Math.floor(examDuration / 60);
+    var sec = examDuration % 60;
+
+    timerSpan.innerText = min + "m" + sec + "s";
+
+    // check if the time and ended
+    if (examDuration <= 0) {
+      //submit exam auto
+      clearTimeout(examTimerId);
+      submitExam();
+    }
+    else if (document.getElementById("message-div")) {
+      clearTimeout(examTimerId);
+      highlightCorrectAnswer();
+    } 
+    else {
+      //decreament timer value by 1 sec
+      examDuration--;
+    }
+  }
+
+  // submit exam
+  function submitExam() {
+    // Cal score
+    calculateScore();
+
+    //submit from e
+    examForm.submit();
+  }
+
+  //Check right answer and then calculate score
+  function calculateScore() {
+    var score = 0;
+
+    questions.forEach((question) => {
+      var selectedInput = question.querySelector("input:checked");
+      var correctAnswer = question.querySelector(".correct-answer").innerText;
+      // check if the answer is correct or not
+      if (selectedInput && selectedInput.value === correctAnswer) {
+        score += 1;
+      }
+    });
+
+    //Update hidden input feild with score in form
+    userScoreInput.value = score;
+    // setTimeout(() => {
+
+    //alert(`Your result is ${score}`);
+
+    //document.getElementById("scoreDisplay").innerText = score;
+    // }, 10000);
+    //examForm.submit();
+
+    // document.getElementById("scoreDisplay").innerText =  ` Your result is ${score}`;
+    // clearTimeout(examTimerId);
+  }
+
+  //highlight correct answer while showing results
+  function highlightCorrectAnswer(){
+    questions.forEach(question => {
+      var correctAnswer = question.querySelector(".correct-answer")
+      correctAnswer.previousElementSibling.querySelector("input").classList.add("bg-success");
+      correctAnswer.previousElementSibling.classList.add("fw-bold");
+    });
+
+
+    //disable submit button and all option
+    submitButton.disabled = true;
+
+    var options = document.querySelectorAll(".form-check-input");
+    options.forEach(option => {
+      option.disabled = true;
+    });
+  }
+
+  //attach event listner to submit butoon
+  submitButton.addEventListener("click", submitExam);
+
+  // Timer interval
+  examTimerId = setInterval(updateTimer, 1000);
+</script>
+
+{% endblock content %}

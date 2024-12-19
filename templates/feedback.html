@@ -1,0 +1,38 @@
+{% extends "./index.html" %}
+{% block title %}Feedback - QuickExam{% endblock title %}
+{% block content %}
+<h1 class="display-4 text-center my-5">Feedback</h1>
+
+<main>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form action="#" method="post" class="contact-form">
+                    <div class="form-group mb-4">
+                        <label for="username">Name</label>
+                        <input type="text" id="username" name="username" value="Username" class="form-control"
+                            disabled>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="Email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="subject">Feedback Subject</label>
+                        <input type="text" id="subject" name="feedbackSubj" required class="form-control">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="message">Feedback</label>
+                        <textarea id="message" name="feedback" rows="5" required class="form-control"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Send Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

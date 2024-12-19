@@ -1,0 +1,63 @@
+{% extends "./index.html" %}
+{% block title %}@{{user_profile2.user.username}}'s Profile - QuickExam{% endblock title %}
+{% block content %}
+
+
+    <h1 class="display-4 text-center my-5">@{{user_profile2.user.username}}'s Profile</h1>
+    <div class="container text-center">
+      {% if request.user.username == user_profile2.user.username %}
+      <div class="btn-group" role="group">
+        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary">Edit</a>
+        <a href="{% url 'delete_profile' %}" class="btn btn-outline-danger">Delete</a>
+      </div>
+      {% endif %}
+
+      <div class="container text-center my-4">
+        <div class="row row-cols-sm-1 row-cols-md-2">
+          <div class="col-12">
+            <img src="{{user_profile2.profile_img.url}}" alt="user-profile" class="rounded-circle" height="150" width="200" />
+            <h2 class="fw-light fs-2">@{{user_profile2.user.username}}</h2>
+          </div>
+          <div class="col-12">
+            <h2>{{user_profile2.user.first_name|default:"Full name not available"}} {{user_profile2.user.last_name}}</h2>
+            <p class="fs-5"><i class="bi bi-gender-ambiguous"></i> {{user_profile2.gender | default:"Gender not available"}}</p>
+            <p class="fs-5"><i class="bi bi-geo-alt-fill"></i> {{user_profile2.location | default:"Location not available"}} </p>
+            <p class="fs-5"><i class="bi bi-file-person"></i> {{user_profile2.bio | default:"Bio not available"}}</p>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4"/>
+
+      <div class="container">
+        <div class="row row-cols-sm-1 row-cols-lg-2 row-cols-md-1">
+          <div class="col-12">
+            <h3>Exams attended by {{user_profile2.user.username}}</h3>
+            <table class="table table-bordered my-3">
+              <thead>
+                <tr>
+                  <th scope="col">No</th>
+                  <th scope="col">Exam</th>
+                  <th scope="col">Marks</th>
+                  <th scope="col">Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for submission in submissions %}
+                <tr>
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td title="{{submission.exam.title}}">{{submission.exam.title|truncatewords:4}}</td>
+                  <td>{{submission.score}}/{{submission.exam.question_set.all|length}}</td>
+                  <td>{{submission.submitted_at|timesince}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="col-12">
+              <h3>@{{user_profile2.user.username}}'s performance</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
